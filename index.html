@@ -261,7 +261,7 @@
 
             listContainer.innerHTML = stations.map(s => `
                 <div class="station-item">
-                    <a href="${s.url}" target="_blank" class="station-name">${s.name}</a>
+                    <a href="${s.url}" target="_blank" class="station-name">${s.name || '(名称不明・クリックで詳細)'}</a>
                     <div class="station-info">${s.count} 基</div>
                 </div>
             `).join('');
