@@ -307,8 +307,8 @@
                     onEachFeature: onEachFeature
                 }).addTo(map);
 
-                // Fit map to data
-                map.fitBounds(geojsonLayer.getBounds());
+                // Fit map to data (コメントアウトして初期の東京中心を維持)
+                // map.fitBounds(geojsonLayer.getBounds());
                 
                 // Hide Loading
                 document.getElementById('loading').style.display = 'none';
