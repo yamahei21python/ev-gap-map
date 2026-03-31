@@ -2,8 +2,14 @@ name: 自動データスクレイピングとマップ更新
 
 on:
   schedule:
-    - cron: '0 18 * * 0' # 毎週日曜の深夜3時(日本時間)に自動実行する場合（UTC表記で18時）
+    - cron: '0 18 * * 0' # 毎週日曜の深夜3時(日本時間)に自動実行する場合
   workflow_dispatch: # 手動で「今すぐ実行」ボタンを押せるようにする設定
+
+# GitHub Pagesへのデプロイに必要な権限設定
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
   update-data:
@@ -30,10 +36,27 @@ jobs:
       - name: 最新のGap分析マップデータ(GeoJSON)を生成
         run: python3 main.py gap-map
         
-      - name: 更新されたデータをGitHubに上書き保存(コミット)
+      - name: 更新された軽量のDBデータだけをGitHubのメインブランチに上書き保存(コミット)
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action Bot"
-          git add data/ev_chargers.db data/gap_map.geojson
+          git add data/ev_chargers.db
           git commit -m "自動更新: 新しい充電スタンドデータを反映" || exit 0
           git push
+
+      - name: GitHub Pages用に全ファイルをアップロード準備
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.' # ルートディレクトリをそのまま公開
+
+  # GitHub Pagesへ実際に公開するジョブ
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: update-data
+    steps:
+      - name: GitHub Pagesへデプロイ！
+        id: deployment
+        uses: actions/deploy-pages@v4
