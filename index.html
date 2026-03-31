@@ -29,12 +29,12 @@
                 <h1>EV Gap Analysis</h1>
                 <p class="subtitle">Charging Station Deficit / Surplus Map</p>
             </div>
-            <button id="toggle-panel-btn" class="toggle-btn" title="パネルを折りたたむ">
-                ▼
+            <button id="toggle-panel-btn" class="toggle-btn" title="パネルを展開する">
+                ▶
             </button>
         </div>
         
-        <div id="panel-content">
+        <div id="panel-content" style="display: none;">
             <div class="stats-box">
                 <div class="stat-item">
                     <span class="stat-label">全国平均普及率</span>
@@ -94,14 +94,21 @@
 
     <!-- Disclaimer Panel -->
     <div class="disclaimer-panel">
-        <div class="disclaimer-title">免責事項・データ出典</div>
-        ※本マップは定住人口ベースの独自推計（Gap値）であり、交通量等の変動要素は考慮していません。実際の充電需要とは異なる場合があります。<br>
-        <br>
-        【データ出典】<br>
-        充電器データ: <a href="https://ev.gogo.gs/" target="_blank">GoGoEV</a><br>
-        人口データ: <a href="https://www.e-stat.go.jp/" target="_blank">e-Stat (政府統計の総合窓口)</a><br>
-        <div style="margin-top: 6px; font-size: 9px; opacity: 0.7;">
-            ※このサイトはデータ可視化の実験プロジェクトであり、各種オープンデータを基に非営利目的で独自計算し運営されています。
+        <div class="panel-header-small" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="disclaimer-title" style="margin-bottom: 0;">免責事項・データ出典</div>
+            <button id="toggle-disclaimer-btn" class="toggle-btn" title="詳細を表示する" style="padding: 2px 6px; font-size: 10px;">
+                ▲
+            </button>
+        </div>
+        <div id="disclaimer-content" style="display: none; margin-top: 10px;">
+            ※本マップは定住人口ベースの独自推計（Gap値）であり、交通量等の変動要素は考慮していません。実際の充電需要とは異なる場合があります。<br>
+            <br>
+            【データ出典】<br>
+            充電器データ: <a href="https://ev.gogo.gs/" target="_blank">GoGoEV</a><br>
+            人口データ: <a href="https://www.e-stat.go.jp/" target="_blank">e-Stat (政府統計の総合窓口)</a><br>
+            <div style="margin-top: 6px; font-size: 9px; opacity: 0.7;">
+                ※このサイトはデータ可視化の実験プロジェクトであり、各種オープンデータを基に非営利目的で独自計算し運営されています。
+            </div>
         </div>
     </div>
 
@@ -306,6 +313,20 @@
                 content.style.display = 'none';
                 this.innerHTML = '▶';
                 this.setAttribute('title', 'パネルを展開する');
+            }
+        });
+
+        // Handle disclaimer toggle
+        document.getElementById('toggle-disclaimer-btn').addEventListener('click', function() {
+            const content = document.getElementById('disclaimer-content');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                this.innerHTML = '▼';
+                this.setAttribute('title', '詳細を閉じる');
+            } else {
+                content.style.display = 'none';
+                this.innerHTML = '▲';
+                this.setAttribute('title', '詳細を表示する');
             }
         });
 
