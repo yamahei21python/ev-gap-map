@@ -1,0 +1,334 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #1a1b1e;
+    color: #e5e7eb;
+}
+
+#map {
+    width: 100vw;
+    height: 100vh;
+    background-color: #111111;
+}
+
+/* Glassmorphism Panel styles */
+.glass-panel {
+    background: rgba(30, 32, 38, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    border-radius: 16px;
+    padding: 24px;
+    z-index: 1000;
+}
+
+/* Main Top Left Panel */
+.main-panel {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 340px;
+}
+
+h1 {
+    margin: 0 0 4px 0;
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.toggle-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #cbd5e1;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background 0.2s, color 0.2s;
+    line-height: 1;
+}
+
+.toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.subtitle {
+    margin: 0 0 20px 0;
+    font-size: 13px;
+    color: #9ca3af;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stats-box {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #cbd5e1;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 18px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.stat-value.link {
+    color: #60a5fa;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.stat-value.link:hover {
+    color: #93c5fd;
+}
+
+.unit {
+    font-size: 12px;
+    color: #9ca3af;
+    font-weight: 400;
+}
+
+/* Station List */
+#station-list-container {
+    margin-top: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 10px;
+    display: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.station-item {
+    font-size: 12px;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.station-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.station-name {
+    display: block;
+    color: #e5e7eb;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.station-name:hover {
+    color: #60a5fa;
+    text-decoration: underline;
+}
+
+.station-info {
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+/* Custom Scrollbar for the list */
+#station-list-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+#station-list-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#station-list-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+#station-list-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Legend */
+.legend-container {
+    margin-top: 10px;
+}
+
+.legend-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #9ca3af;
+    margin: 0 0 8px 0;
+}
+
+.legend-bar {
+    height: 8px;
+    width: 100%;
+    border-radius: 4px;
+    /* Red to White to Blue */
+    background: linear-gradient(to right, #ff4c4c, #ffffff, #4c6bff);
+    margin-bottom: 6px;
+}
+
+.legend-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+/* Bottom Right Info Panel */
+.info-panel {
+    position: absolute;
+    bottom: 30px;
+    right: 20px;
+    width: 260px;
+    min-height: 80px;
+}
+
+.info-placeholder {
+    font-size: 13px;
+    color: #9ca3af;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+}
+
+.info-label {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.info-val {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.gap-val {
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.info-content hr {
+    border: 0;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 12px 0;
+}
+
+.info-mesh {
+    font-size: 10px;
+    color: #6b7280;
+    text-align: right;
+    margin-top: 10px;
+}
+
+/* Tooltip */
+.tooltip-wrapper {
+    position: relative;
+    cursor: help;
+}
+
+.info-icon {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #4b5563;
+    color: #111;
+    font-size: 10px;
+    text-align: center;
+    line-height: 14px;
+    margin-left: 4px;
+}
+
+.tooltip {
+    display: none;
+    position: absolute;
+    top: 110%;
+    left: 0;
+    width: 220px;
+    background: #1f2937;
+    border: 1px solid #374151;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #d1d5db;
+    z-index: 1001;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.tooltip-wrapper:hover .tooltip {
+    display: block;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #111111;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-top: 4px solid #60a5fa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #e5e7eb;
+    text-align: center;
+    line-height: 1.5;
+}

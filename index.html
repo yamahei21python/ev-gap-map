@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Charge Gap Analysis Map | ギャップマップ</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">ギャップマップを読み込み中...<br><span style="font-size: 14px; opacity: 0.8;">※データサイズが大きいため数秒かかります</span></div>
+    </div>
+
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <!-- Sidebar / Floating Panel -->
+    <div class="glass-panel main-panel" id="main-panel">
+        <div class="panel-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <h1>EV Gap Analysis</h1>
+                <p class="subtitle">Charging Station Deficit / Surplus Map</p>
+            </div>
+            <button id="toggle-panel-btn" class="toggle-btn" title="パネルを折りたたむ">
+                ▼
+            </button>
+        </div>
+        
+        <div id="panel-content">
+            <div class="stats-box">
+                <div class="stat-item">
+                    <span class="stat-label">全国平均普及率</span>
+                    <span class="stat-value">4.29 <span class="unit">基/万人</span></span>
+                </div>
+                <div class="stat-item tooltip-wrapper">
+                    <span class="stat-label">ギャップ (Gap) 指標 <span class="info-icon">i</span></span>
+                    <div class="tooltip">「実際の充電器数」が、人口ベースの「あるべき数（期待値）」からどれだけ上振れ/下振れしているかを示します。マイナス（赤）は不足、プラス（青）は充足を表します。</div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="legend-container">
+                <h3 class="legend-title">Gap (過不足数)</h3>
+                <div class="legend-bar"></div>
+                <div class="legend-labels">
+                    <span>不足 (-5基以下)</span>
+                    <span>平均 (0)</span>
+                    <span>充足 (+5基以上)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Panel dynamically updated -->
+    <div class="glass-panel info-panel" id="info-panel">
+        <div class="panel-header-small" id="info-lock-header" style="display: none; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 11px; color: #60a5fa; font-weight: 700; text-transform: uppercase;">[ 固定中 ]</span>
+            <button id="unlock-btn" style="background:none; border:none; color:#f87171; cursor:pointer; font-size:16px;">×</button>
+        </div>
+        <div class="info-placeholder">マップ上のメッシュにカーソルを合わせると詳細が表示されます。</div>
+        <div class="info-content" style="display: none;">
+            <div class="info-row">
+                <span class="info-label">Gap (過不足数)</span>
+                <span class="info-val gap-val" id="info-gap">0</span>
+            </div>
+            <hr>
+            <div class="info-row">
+                <span class="info-label">実際の充電器数</span>
+                <span class="info-val link" id="info-actual-link">0</span>
+            </div>
+            <div id="station-list-container"></div>
+            <div class="info-row">
+                <span class="info-label">期待される適正数</span>
+                <span class="info-val" id="info-expected">0</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">メッシュ内人口</span>
+                <span class="info-val" id="info-pop">0 <span class="unit">人</span></span>
+            </div>
+            <div class="info-mesh">
+                <div id="info-address" style="font-size: 13px; color: #fff; margin-bottom: 4px; font-weight: 600;"></div>
+                メッシュコード: <span id="info-code"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script>
+        // Initialize Map (Tokyo centered)
+        const map = L.map('map', {
+            center: [35.6895, 139.6917],
+            zoom: 11,
+            preferCanvas: true // CRITICAL FOR PERFORMANCE with 190k+ polygons
+        });
+
+        // Dark modern map tiles (CartoDB Dark Matter)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(map);
+
+        function getGapColor(gap) {
+            const maxVal = 5.0; 
+            if (gap === null || gap === undefined) return '#333333';
+            let normalized = Math.max(-1, Math.min(1, gap / maxVal));
+
+            if (normalized < 0) {
+                const intensity = Math.abs(normalized);
+                const r = 255;
+                const g = Math.round(255 * (1 - intensity) + 50 * intensity);
+                const b = Math.round(255 * (1 - intensity) + 50 * intensity);
+                return `rgb(${r},${g},${b})`;
+            } else if (normalized > 0) {
+                const intensity = normalized;
+                const r = Math.round(255 * (1 - intensity) + 40 * intensity);
+                const g = Math.round(255 * (1 - intensity) + 100 * intensity);
+                const b = 255;
+                return `rgb(${r},${g},${b})`;
+            } else {
+                return '#ffffff';
+            }
+        }
+
+        function style(feature) {
+            return {
+                fillColor: getGapColor(feature.properties.gap),
+                weight: 0,
+                opacity: 1,
+                fillOpacity: 0.7
+            };
+        }
+
+        let lockedFeature = null;
+
+        function updateInfoPanel(props) {
+            document.querySelector('.info-placeholder').style.display = 'none';
+            document.querySelector('.info-content').style.display = 'block';
+            
+            const gapEl = document.getElementById('info-gap');
+            gapEl.textContent = (props.gap > 0 ? '+' : '') + props.gap;
+            gapEl.style.color = getGapColor(props.gap);
+            
+            const actualEl = document.getElementById('info-actual-link');
+            actualEl.textContent = props.chargers;
+            
+            // Store stations data for list display
+            actualEl.dataset.stations = JSON.stringify(props.stations || []);
+            
+            // Reset list container
+            const listContainer = document.getElementById('station-list-container');
+            listContainer.style.display = 'none';
+            listContainer.innerHTML = '';
+
+            document.getElementById('info-expected').textContent = props.expected;
+            document.getElementById('info-pop').innerHTML = `${props.population.toLocaleString()} <span class="unit">人</span>`;
+            document.getElementById('info-code').textContent = props.mesh_code;
+
+            const addrEl = document.getElementById('info-address');
+            if (props.address && props.address !== "取得中") {
+                addrEl.textContent = props.address;
+                addrEl.style.color = '#ffffff';
+            } else {
+                addrEl.textContent = '地名データなし (取得中)';
+                addrEl.style.color = '#9ca3af';
+            }
+        }
+
+        function highlightFeature(e) {
+            if (lockedFeature) return;
+
+            const layer = e.target;
+            layer.setStyle({
+                weight: 1,
+                color: '#ffffff',
+                fillOpacity: 0.9
+            });
+            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                layer.bringToFront();
+            }
+
+            updateInfoPanel(layer.feature.properties);
+        }
+
+        function resetHighlight(e) {
+            if (lockedFeature) return;
+
+            geojsonLayer.resetStyle(e.target);
+            document.querySelector('.info-placeholder').style.display = 'block';
+            document.querySelector('.info-content').style.display = 'none';
+        }
+
+        function onMapClick(e) {
+            // Click on empty map to unlock
+            if (lockedFeature) {
+                geojsonLayer.resetStyle(lockedFeature);
+                lockedFeature = null;
+                document.getElementById('info-lock-header').style.display = 'none';
+                document.querySelector('.info-placeholder').style.display = 'block';
+                document.querySelector('.info-content').style.display = 'none';
+            }
+        }
+
+        function onFeatureClick(e) {
+            L.DomEvent.stopPropagation(e);
+            
+            const layer = e.target;
+
+            // If clicking the already locked feature, toggle list or just keep it
+            if (lockedFeature === layer) {
+                // Already locked, maybe toggle something or do nothing
+                return;
+            }
+
+            // Unlock previous
+            if (lockedFeature) {
+                geojsonLayer.resetStyle(lockedFeature);
+            }
+
+            // Lock this one
+            lockedFeature = layer;
+            document.getElementById('info-lock-header').style.display = 'flex';
+            
+            layer.setStyle({
+                weight: 2,
+                color: '#60a5fa',
+                fillOpacity: 0.9
+            });
+            layer.bringToFront();
+
+            updateInfoPanel(layer.feature.properties);
+        }
+
+        function onEachFeature(feature, layer) {
+            layer.on({
+                mouseover: highlightFeature,
+                mouseout: resetHighlight,
+                click: onFeatureClick
+            });
+        }
+
+        // Handle chargers count click
+        document.getElementById('info-actual-link').addEventListener('click', function() {
+            const listContainer = document.getElementById('station-list-container');
+            if (listContainer.style.display === 'block') {
+                listContainer.style.display = 'none';
+                return;
+            }
+
+            const stations = JSON.parse(this.dataset.stations || '[]');
+            if (stations.length === 0) return;
+
+            listContainer.innerHTML = stations.map(s => `
+                <div class="station-item">
+                    <a href="${s.url}" target="_blank" class="station-name">${s.name}</a>
+                    <div class="station-info">${s.count} 基</div>
+                </div>
+            `).join('');
+            
+            listContainer.style.display = 'block';
+        });
+
+        // Handle unlock button click
+        document.getElementById('unlock-btn').addEventListener('click', function(e) {
+            if (lockedFeature) {
+                geojsonLayer.resetStyle(lockedFeature);
+                lockedFeature = null;
+                document.getElementById('info-lock-header').style.display = 'none';
+                document.querySelector('.info-placeholder').style.display = 'block';
+                document.querySelector('.info-content').style.display = 'none';
+            }
+        });
+
+        map.on('click', onMapClick);
+
+        // --- Panel Toggle Logic ---
+        document.getElementById('toggle-panel-btn').addEventListener('click', function() {
+            const content = document.getElementById('panel-content');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                this.innerHTML = '▼';
+                this.setAttribute('title', 'パネルを折りたたむ');
+            } else {
+                content.style.display = 'none';
+                this.innerHTML = '▶';
+                this.setAttribute('title', 'パネルを展開する');
+            }
+        });
+
+        let geojsonLayer;
+
+        // Fetch Data and Render
+        fetch('data/gap_map.geojson')
+            .then(res => res.json())
+            .then(data => {
+                geojsonLayer = L.geoJson(data, {
+                    style: style,
+                    onEachFeature: onEachFeature
+                }).addTo(map);
+
+                // Fit map to data
+                map.fitBounds(geojsonLayer.getBounds());
+                
+                // Hide Loading
+                document.getElementById('loading').style.display = 'none';
+            })
+            .catch(err => {
+                console.error("Error loading GeoJSON", err);
+                document.getElementById('loading').innerHTML = "<div style='color:#ff5555'>データの読み込みに失敗しました。</div>";
+            });
+
+    </script>
+</body>
+</html>

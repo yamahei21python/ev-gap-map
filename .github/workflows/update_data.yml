@@ -1,0 +1,39 @@
+name: 自動データスクレイピングとマップ更新
+
+on:
+  schedule:
+    - cron: '0 18 * * 0' # 毎週日曜の深夜3時(日本時間)に自動実行する場合（UTC表記で18時）
+  workflow_dispatch: # 手動で「今すぐ実行」ボタンを押せるようにする設定
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: コードのチェックアウト
+        uses: actions/checkout@v3
+        
+      - name: Pythonのセットアップ
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: 必要なライブラリのインストール
+        run: |
+          pip install -r requirements.txt
+          
+      - name: Gogoevの新着EV充電器データの取得 (上位3ページの差分アップデート)
+        run: python3 main.py update-stations --pages 3
+          
+      - name: 新規スタンドのジオコーディング(緯度経度化)
+        run: python3 main.py geocode
+        
+      - name: 最新のGap分析マップデータ(GeoJSON)を生成
+        run: python3 main.py gap-map
+        
+      - name: 更新されたデータをGitHubに上書き保存(コミット)
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action Bot"
+          git add data/ev_chargers.db data/gap_map.geojson
+          git commit -m "自動更新: 新しい充電スタンドデータを反映" || exit 0
+          git push
