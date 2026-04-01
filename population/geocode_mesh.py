@@ -8,7 +8,7 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 # Nominatim APIは 1秒に1リクエスト までという厳格な規約があります
-DELAY_SECONDS = 0.7
+DELAY_SECONDS = 0.5
 BATCH_SIZE = 50
 
 def setup_logging():
