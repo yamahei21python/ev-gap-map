@@ -1,7 +1,0 @@
-{
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/LP", "destination": "/lp.html" },
-    { "source": "/lp", "destination": "/lp.html" }
-  ]
-}
