@@ -11,6 +11,10 @@ def run_gap_analysis():
     ev_db_path = os.path.join("data", "ev_chargers.db")
     pop_db_path = os.path.join("data", "population.db")
     output_geojson = os.path.join("data", "gap_map.geojson")
+    
+    # public/data が存在する場合は、そちらも出力対象にする
+    public_output_dir = os.path.join("public", "data")
+    public_output_path = os.path.join(public_output_dir, "gap_map.geojson")
 
     if not os.path.exists(ev_db_path) or not os.path.exists(pop_db_path):
         logger.error("必要なデータベースが見つかりません。ev_chargers.db と population.db を確認してください。")
@@ -174,8 +178,14 @@ def run_gap_analysis():
     
     with open(output_geojson, "w", encoding="utf-8") as f:
         json.dump(geojson, f)
-        
     logger.info(f"出力完了: {output_geojson}")
+    
+    # public/data が存在する場合、そこに自動的にコピーして
+    # ビルドコマンド(cp)の失敗を防ぐ設定
+    if os.path.exists(public_output_dir):
+        with open(public_output_path, "w", encoding="utf-8") as f:
+            json.dump(geojson, f)
+        logger.info(f"Vercel 配布用出力完了: {public_output_path}")
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
