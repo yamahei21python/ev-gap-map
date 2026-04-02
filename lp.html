@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Charge Gap Analysis | The Science of Infrastructure</title>
+    
+    <meta name="description" content="人口統計と充電ステーションデータを統合した、日本全土のEVインフラ・ギャップ分析マップ。データサイエンスに基づいた不足エリアの特定。">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="lp-body">
+
+    <div class="grid-overlay"></div>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-content">
+            <h1>The Science of<br>Infrastructure Gap</h1>
+            <p>人口統計データと充電ネットワークの相関を1km²単位で解析。<br>インフラの「真の不足」を可視化するデータエンジン。</p>
+            <a href="/" class="cta-button">Launch Analysis Map</a>
+        </div>
+    </header>
+
+    <!-- Problem Section -->
+    <section class="lp-section">
+        <div class="section-grid">
+            <div>
+                <div class="section-tag">The Problem</div>
+                <h2 class="section-title">地図の上に、<br>需要の影を落とす。</h2>
+                <p class="section-desc">
+                    ただ充電器の場所を表示するだけでは、インフラの真の充足度は分かりません。
+                    「人口」という需要のソースと「設置数」という供給の現状を掛け合わせることで、初めて隠れた空白地帯が浮き彫りになります。
+                </p>
+            </div>
+            <div class="feature-mockup">
+                <!-- Data Visualization Concept Image -->
+                <img src="landing_hero.png" alt="Data Grid Visualization" class="mockup-img pulse-img">
+                <div style="position: absolute; bottom: 20px; left: 20px; font-family: monospace; font-size: 10px; color: #60a5fa; opacity: 0.8;">
+                    [SYSTEM_ANALYSIS]: MESH_GRID_ALPHA_258
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Methodology Section -->
+    <section class="lp-section">
+        <div class="section-grid" style="direction: rtl;">
+            <div style="direction: ltr;">
+                <div class="section-tag">Methodology</div>
+                <h2 class="section-title">25万個のグリッドが<br>導き出す最適解。</h2>
+                <p class="section-desc">
+                    日本全土を25.8万件の標準地域メッシュに解体。
+                    e-Statの人口統計と最新の充電器設置データを統合し、独自のGap指標（期待値と実数値の差分）をリアルタイムに算出します。
+                    勘ではなく、定数値に基づいた設置計画のために。
+                </p>
+            </div>
+            <div class="feature-mockup" style="background: rgba(96, 165, 250, 0.1); position: relative;">
+                <canvas id="grid-animation" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
+                <div style="display: flex; justify-content: center; align-items: center; height: 100%; color: #60a5fa; font-family: monospace; position: relative; z-index: 2; pointer-events: none;">
+                    <div style="text-align: center; text-shadow: 0 0 20px rgba(96, 165, 250, 0.5);">
+                        <div style="font-size: 48px; font-weight: 800;">258,330</div>
+                        <div style="font-size: 14px; opacity: 0.6;">ANALYZED MESH CHUNKS</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Preview / Call to Action -->
+    <section class="lp-section" style="text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
+        <div class="section-tag">Interactive Map</div>
+        <h2 class="section-title">あなたの地域を、データで観測する。</h2>
+        <p class="section-desc" style="margin: 0 auto 40px; max-width: 700px;">
+            ヒートマップ形式のインタラクティブマップで、日本全国の過不足状況を確認できます。
+        </p>
+        <a href="/" class="cta-button">Open Interactive Map</a>
+    </section>
+
+    <footer style="padding: 60px 20px; text-align: center; color: #4b5563; font-size: 12px; letter-spacing: 1px;">
+        &copy; 2026 EV CHARGE GAP ANALYSIS PROJECT / DATA DRIVEN INSIGHTS
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('grid-animation');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let w, h;
+
+        function resize() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            w = canvas.width = rect.width;
+            h = canvas.height = rect.height;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * w;
+                this.y = Math.random() * -h;
+                this.size = Math.random() * 8 + 2;
+                this.speed = Math.random() * 2 + 1;
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                this.y += this.speed;
+                if (this.y > h) this.reset();
+            }
+            draw() {
+                ctx.fillStyle = `rgba(96, 165, 250, ${this.opacity})`;
+                // Draw a square mesh fragment
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+                
+                // Occasional "glitch" line for tech feel
+                if (Math.random() > 0.99) {
+                    ctx.fillRect(0, this.y, w, 0.5);
+                }
+            }
+        }
+
+        function init() {
+            particles = [];
+            for (let i = 0; i < 100; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, w, h);
+            
+            // Draw a subtle grid background
+            ctx.strokeStyle = 'rgba(96, 165, 250, 0.05)';
+            ctx.lineWidth = 0.5;
+            const gridSize = 20;
+            for (let x = 0; x < w; x += gridSize) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+            }
+            for (let y = 0; y < h; y += gridSize) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+            }
+
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+    </script>
+
+</body>
+</html>

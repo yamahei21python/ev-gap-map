@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/LP", "destination": "/lp.html" }
+  ],
+  "cleanUrls": true
+}
