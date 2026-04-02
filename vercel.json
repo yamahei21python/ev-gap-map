@@ -1,7 +1,7 @@
 {
   "cleanUrls": true,
-  "routes": [
-    { "src": "/LP", "dest": "/lp.html" },
-    { "src": "/lp", "dest": "/lp.html" }
+  "rewrites": [
+    { "source": "/LP", "destination": "/lp.html" },
+    { "source": "/lp", "destination": "/lp.html" }
   ]
 }
