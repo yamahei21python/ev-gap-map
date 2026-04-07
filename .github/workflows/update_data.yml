@@ -33,8 +33,8 @@ jobs:
           gunzip -c data/population.sql.gz | sqlite3 data/population.db
           gunzip -c data/ev_chargers.sql.gz | sqlite3 data/ev_chargers.db
           
-      - name: Gogoevの新着EV充電器データの取得 (上位20ページの差分アップデート)
-        run: python3 main.py update-stations --pages 20
+      - name: Gogoevの新着EV充電器データの取得 (上位3ページの差分アップデート)
+        run: python3 main.py update-stations --pages 3
           
       - name: 新規スタンドのジオコーディング(緯度経度化)
         run: python3 main.py geocode
