@@ -84,32 +84,32 @@ def run_geocoder():
                         data = res.json()
                         if data and "address" in data:
                             addr = data["address"]
-                            pref = addr.get("province", "")
+                            pref = addr.get("province", addr.get("state", ""))
                             city = addr.get("city", addr.get("town", addr.get("village", addr.get("county", ""))))
                             subub = addr.get("suburb", addr.get("neighbourhood", addr.get("quarter", "")))
                             full_name = f"{pref}{city}{subub}"
                             
-                            # 空の場合は「データなし」ではなくあえて空文字や地名不明を入れる
                             if not full_name:
                                 full_name = "地名不明"
                         else:
                             full_name = "地名不明"
                     else:
                         logger.warning(f"API Error {res.status_code} on mesh {mesh_code}")
-                        full_name = "取得失敗"
+                        full_name = None # 取得失敗時は保存せず、次回リトライ対象にする
 
                 except Exception as e:
                     logger.error(f"通信エラー ({mesh_code}): {e}")
-                    full_name = "取得エラー"
+                    full_name = None # 通信エラー時は保存せず、次回リトライ対象にする
 
-                # DB更新
-                cursor.execute(
-                    "UPDATE mesh_population SET address = ? WHERE mesh_code = ?",
-                    (full_name, mesh_code)
-                )
+                # DB更新 (取得に成功した場合のみ)
+                if full_name:
+                    cursor.execute(
+                        "UPDATE mesh_population SET address = ? WHERE mesh_code = ?",
+                        (full_name, mesh_code)
+                    )
+                    processed_in_session += 1
 
-                processed_in_session += 1
-                if processed_in_session % 10 == 0:
+                if (processed_in_session + 1) % 10 == 0:
                     elapsed = time.time() - start_time
                     logger.info(f"進捗: {processed_in_session}件 処理完了 (残 {remaining_count - processed_in_session}件, 今回の経過時間: {elapsed/60:.1f}分)")
 
