@@ -27,6 +27,12 @@ jobs:
         run: |
           pip install -r requirements.txt
           
+      - name: DBをSQLダンプから復元
+        run: |
+          mkdir -p data
+          gunzip -c data/population.sql.gz | sqlite3 data/population.db
+          gunzip -c data/ev_chargers.sql.gz | sqlite3 data/ev_chargers.db
+          
       - name: Gogoevの新着EV充電器データの取得 (上位3ページの差分アップデート)
         run: python3 main.py update-stations --pages 3
           
@@ -36,12 +42,14 @@ jobs:
       - name: 最新のGap分析マップデータ(GeoJSON)を生成
         run: python3 main.py gap-map
         
-      - name: 更新された軽量のDBデータだけをGitHubのメインブランチに上書き保存(コミット)
+      - name: 更新されたデータをSQLダンプとして保存(コミット)
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action Bot"
-          git add data/ev_chargers.db
-          git commit -m "自動更新: 新しい充電スタンドデータを反映" || exit 0
+          # ev_chargers.db を SQLダンプに書き戻す
+          sqlite3 data/ev_chargers.db .dump | gzip > data/ev_chargers.sql.gz
+          git add data/ev_chargers.sql.gz
+          git commit -m "自動更新: 新しい充電スタンドデータをSQLダンプに反映" || exit 0
           git push
 
       - name: GitHub Pages用に全ファイルをアップロード準備
