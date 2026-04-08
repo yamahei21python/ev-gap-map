@@ -1,9 +1,26 @@
+:root {
+    /* Supabase Colors */
+    --sb-bg: #171717;
+    --sb-bg-darker: #0f0f0f;
+    --sb-green: #3ecf8e;
+    --sb-green-link: #00c573;
+    --sb-border: #2e2e2e;
+    --sb-border-prominent: #363636;
+    --sb-text-main: #fafafa;
+    --sb-text-secondary: #b4b4b4;
+    --sb-text-muted: #898989;
+    
+    /* System Overrides */
+    --primary-blue: var(--sb-green); /* Map specific */
+}
+
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #1a1b1e;
-    color: #e5e7eb;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif; /* Mimic Circular */
+    background-color: var(--sb-bg);
+    color: var(--sb-text-main);
+    line-height: 1.5;
 }
 
 #map {
@@ -12,14 +29,12 @@ body {
     background-color: #111111;
 }
 
-/* Glassmorphism Panel styles */
+/* Supabase Panel styles */
 .glass-panel {
-    background: rgba(30, 32, 38, 0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-    border-radius: 16px;
+    background: var(--sb-bg-darker);
+    border: 1px solid var(--sb-border);
+    box-shadow: none; /* Supabase avoids shadows */
+    border-radius: 8px; /* Comfortable radius */
     padding: 24px;
     z-index: 1000;
 }
@@ -35,11 +50,10 @@ body {
 h1 {
     margin: 0 0 4px 0;
     font-size: 24px;
-    font-weight: 800;
-    background: linear-gradient(135deg, #60a5fa, #a78bfa);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-weight: 400; /* Supabase uses 400 with tight line-height */
+    color: var(--sb-text-main);
+    line-height: 1.0;
+    letter-spacing: -0.02em;
 }
 
 .toggle-btn {
@@ -476,20 +490,21 @@ h1 {
 
 .cta-button {
     display: inline-block;
-    padding: 18px 36px;
-    font-size: 16px;
-    font-weight: 700;
-    color: #ffffff;
-    background: linear-gradient(135deg, #60a5fa, #3b82f6);
-    border-radius: 50px;
+    padding: 8px 32px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--sb-text-main);
+    background: var(--sb-bg-darker);
+    border-radius: 9999px; /* Pill shape */
+    border: 1px solid var(--sb-text-main);
     text-decoration: none;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+    transition: all 0.2s;
 }
 
 .cta-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4);
+    transform: none;
+    background: var(--sb-text-main);
+    color: var(--sb-bg-darker);
 }
 
 /* Sections */
