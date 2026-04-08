@@ -1,8 +1,11 @@
 {
-  "version": 2,
-  "public": true,
   "cleanUrls": true,
+  "trailingSlash": true,
   "rewrites": [
-    { "source": "/(.*)", "destination": "/public/$1" }
+    { "source": "/(lp|LP)", "destination": "/public/lp/index.html" },
+    { "source": "/", "destination": "/public/index.html" },
+    { "source": "/data/(.*)", "destination": "/public/data/$1" },
+    { "source": "/style.css", "destination": "/public/style.css" },
+    { "source": "/landing_hero.png", "destination": "/public/landing_hero.png" }
   ]
 }
