@@ -1,8 +1,9 @@
 {
   "cleanUrls": true,
-  "trailingSlash": true,
+  "trailingSlash": false,
   "rewrites": [
-    { "source": "/(lp|LP)", "destination": "/public/lp/index.html" },
+    { "source": "/lp", "destination": "/public/lp/index.html" },
+    { "source": "/LP", "destination": "/public/lp/index.html" },
     { "source": "/", "destination": "/public/index.html" },
     { "source": "/data/(.*)", "destination": "/public/data/$1" },
     { "source": "/style.css", "destination": "/public/style.css" },
