@@ -4,6 +4,9 @@ import os
 
 # ==================== Paths ====================
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# If BASE_DIR is 'src', go up one level
+if os.path.basename(BASE_DIR) == "src":
+    BASE_DIR = os.path.dirname(BASE_DIR)
 DATA_DIR = os.path.join(BASE_DIR, "data")
 DB_PATH = os.path.join(DATA_DIR, "ev_chargers.db")
 POP_DB_PATH = os.path.join(DATA_DIR, "population.db")

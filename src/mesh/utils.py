@@ -62,3 +62,12 @@ def normalize_to_3rd_mesh(meshcode: str) -> str:
     if len(code_str) >= 8:
         return code_str[:8]
     return code_str
+
+
+def get_mesh_center(
+    lat_min: float, lon_min: float, lat_max: float, lon_max: float
+) -> Tuple[float, float]:
+    """Get center coordinates of a mesh bounding box"""
+    center_lat = (lat_min + lat_max) / 2.0
+    center_lon = (lon_min + lon_max) / 2.0
+    return center_lat, center_lon

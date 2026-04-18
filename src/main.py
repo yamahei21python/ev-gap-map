@@ -5,7 +5,7 @@ import argparse
 import sys
 
 from .core.logging import setup_logging
-from .cli import scrape, stats, fetch_pop, geocode, gap_map, reset, update
+from .cli import scrape, stats, fetch_pop, geocode, gap_map, reset, update, geocode_mesh
 
 
 def main():
@@ -41,6 +41,7 @@ Examples:
     stats.add_parser(subparsers)
     fetch_pop.add_parser(subparsers)
     geocode.add_parser(subparsers)
+    geocode_mesh.add_parser(subparsers)
     gap_map.add_parser(subparsers)
     reset.add_parser(subparsers)
     update.add_parser(subparsers)
@@ -64,6 +65,8 @@ Examples:
         fetch_pop.cmd_fetch_pop(args)
     elif args.command == "geocode":
         geocode.cmd_geocode(args)
+    elif args.command == "geocode-mesh":
+        geocode_mesh.cmd_geocode_mesh(args)
     elif args.command == "gap-map":
         gap_map.cmd_gap_map(args)
     elif args.command == "reset":
