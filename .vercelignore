@@ -27,11 +27,11 @@ share/python-wheels/
 MANIFEST
 
 # Vercel bypass: Python CLI tools and data processing
-main.py
-requirements.txt
-src/
-data/
-archive/
+/main.py
+/requirements.txt
+/src/
+/data/
+/archive/
 
 # Environments
 .env
