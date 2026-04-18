@@ -37,7 +37,12 @@ pip install -r requirements.txt
 
 メインエントリポイントは `main.py` です。
 
-### 1. 充電スタンドデータの取得
+```bash
+# ヘルプ表示
+python3 main.py --help
+```
+
+### 充電スタンドデータの取得
 ```bash
 # 全都道府県のデータを更新（続きから再開）
 python3 main.py scrape --resume
@@ -46,38 +51,76 @@ python3 main.py scrape --resume
 python3 main.py scrape --prefecture 13 --max-pages 1
 ```
 
-### 2. 人口データの取得
+### 人口データの取得
 ```bash
 # e-Statから人口メッシュデータを取得してDBに保存
 python3 main.py fetch-pop
 ```
 
-### 3. ジオコーディング (住所の緯度経度化)
+### ジオコーディング (住所の緯度経度化)
 ```bash
 # 取得したスタンド住所から緯度経度を算出
 python3 main.py geocode
-
-# 人口メッシュの地名補完 (OSM Nominatim API)
-python3 population/geocode_mesh.py
 ```
 
-### 4. ギャップマップの生成
+### ギャップマップの生成
 ```bash
 # 解析を実行し、public/data/gap_map.geojson を作成
 python3 main.py gap-map
 ```
 
+### 統計情報の表示
+```bash
+python3 main.py stats
+```
+
+### 進捗リセット
+```bash
+# 特定の都道府県の進捗をリセット
+python3 main.py reset --prefecture 13
+
+# 全都道府県の進捗をリセット
+python3 main.py reset
+```
+
 ## ディレクトリ構造
-*   `scraper/`: 充電スタンドのスクレイピング・DB管理
-*   `population/`: 人口データの取得・地名変換・ギャップ分析ロジック
-*   `data/`: SQLiteデータベース（`ev_chargers.db`, `population.db`）
-*   `public/`: フロントエンド（HTML/CSS/JS）および生成されたGeoJSON
-*   `.github/workflows/`: 自動更新パイプライン
+
+```
+EVCharge/
+├── main.py                 # CLIエントリポイント
+├── src/
+│   ├── cli/                # コマンドハンドラ
+│   │   ├── scrape.py       # スクレイピング
+│   │   ├── stats.py        # 統計表示
+│   │   ├── fetch_pop.py   # 人口データ取得
+│   │   ├── geocode.py      # ジオコーディング
+│   │   ├── gap_map.py      # ギャップ分析
+│   │   ├── reset.py        # 進捗リセット
+│   │   └── update.py       # 差分アップデート
+│   ├── core/               # コアモジュール
+│   │   ├── config.py       # 設定
+│   │   ├── constants.py    # 定数
+│   │   ├── exceptions.py   # 例外クラス
+│   │   ├── http.py         # HTTPクライアント
+│   │   ├── logging.py      # ロギング
+│   │   ├── geojson.py      # GeoJSONビルダー
+│   │   └── parser.py       # HTML解析
+│   ├── db/                 # データベース
+│   │   ├── connection.py  # DB接続
+│   │   ├── models.py       # ORM的関数
+│   │   └── queries.py      # SQLクエリ
+│   └── mesh/               # メッシュ計算
+│       └── utils.py        # メッシュユーティリティ
+├── archive/                # 旧コード (参照用)
+├── data/                   # SQLite DB, GeoJSON
+├── public/                 # フロントエンド
+└── .github/workflows/      # CI/CD
+```
 
 ## データ引用元
 *   [gogo.gs](https://ev.gogo.gs) (EV充電スタンド情報)
 *   [e-Stat 政府統計の総合窓口](https://www.e-stat.go.jp/) (国勢調査・人口メッシュ統計)
-*   [OpenStreetMap (Nominatim)](https://nominatim.openstreetmap.org/) (ジオコーディング)
+*   [国土地理院](https://www.gsi.go.jp/) (ジオコーディング)
 
 ---
 Developed by [yamahei21python](https://github.com/yamahei21python)
